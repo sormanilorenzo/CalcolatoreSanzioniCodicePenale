@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Sanzioni Codice Penale</title>
+    <style>
+        :root {
+            --primary-color: #1a3a63;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666;
+            --text-color: #333;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 30px;
+            border: 1px solid var(--medium-gray);
+            box-sizing: border-box;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+        }
+        
+        .categories {
+            margin-bottom: 30px;
+        }
+        
+        .category {
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        
+        .category-title {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .category-title:hover {
+            background-color: #2c5285;
+        }
+        
+        .category-title:after {
+            content: '\f107';
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            transition: transform 0.3s ease;
+        }
+        
+        .category.open .category-title:after {
+            transform: rotate(180deg);
+        }
+        
+        .category-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        
+        .category.open .category-content {
+            max-height: 2000px;
+        }
+        
+        .violation {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--medium-gray);
+            transition: background-color 0.2s ease;
+        }
+        
+        .violation:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .violation:last-child {
+            border-bottom: none;
+        }
+        
+        .violation input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .violation label {
+            flex-grow: 1;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .violation-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 220px;
+            text-align: right;
+            padding-left: 15px;
+        }
+        
+        .fine {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .detention {
+            color: #8e44ad;
+            font-weight: 500;
+        }
+        
+        .note {
+            font-style: italic;
+            margin-top: 3px;
+        }
+        
+        .total-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e5799 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .total-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .total-amounts {
+            display: flex;
+            gap: 40px;
+        }
+        
+        .total-amount {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .total-value {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .total-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: var(--dark-gray);
+            font-style: italic;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .total-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .total-amounts {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .violation {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .violation-info {
+                width: 100%;
+                text-align: left;
+                padding-left: 30px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <img src="repvblica.png" alt="Logo Giustizia" class="logo">
+        <h1>Calcolatore Sanzioni Codice Penale</h1>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchBox" class="search-box" placeholder="Cerca un reato...">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+    
+    <div class="categories" id="categoriesContainer">
+        <!-- Categories will be dynamically inserted here -->
+    </div>
+    
+    <div class="total-section">
+        <div class="total-title">TOTALE SANZIONI</div>
+        <div class="total-amounts">
+            <div class="total-amount">
+                <div id="totalFine" class="total-value">€ 0,00</div>
+                <div class="total-label">Sanzione pecuniaria</div>
+            </div>
+            <div class="total-amount">
+                <div id="totalDetention" class="total-value">0</div>
+                <div class="total-label">Pena detentiva (anni)</div>
+            </div>
+            <div class="total-amount">
+                <div id="totalService" class="total-value">0</div>
+                <div class="total-label">Servizi comunitari</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure with all violations grouped by category
+        const violations = [
+            {
+                category: "TESTO UNICO STUPEFACENTI",
+                items: [
+                    {
+                        id: "art73c1tus",
+                        article: "art.73 c.1 t.u.s.",
+                        title: "Traffico e detenzione illeciti di sostanze stupefacenti o psicotrope da 5 a 49 dosi grezze",
+                        fine: 5000,
+                        detention: 4,
+                        service: 0
+                    },
+                    {
+                        id: "art73c2tus",
+                        article: "art.73 c.2 t.u.s.",
+                        title: "Traffico e detenzione illeciti di sostanze stupefacenti o psicotrope oltre 49 dosi grezze",
+                        fine: 5000,
+                        detention: 6,
+                        service: 0
+                    },
+                    {
+                        id: "art73c3tus",
+                        article: "art.73 c.3 t.u.s.",
+                        title: "Traffico e detenzione illeciti di sostanze stupefacenti o psicotrope da 5 a 49 dosi processate",
+                        fine: 10000,
+                        detention: 8,
+                        service: 0
+                    },
+                    {
+                        id: "art73c4tus",
+                        article: "art.73 c.4 t.u.s.",
+                        title: "Traffico e detenzione illeciti di sostanze stupefacenti o psicotrope oltre 49 dosi processate",
+                        fine: 10000,
+                        detention: 10,
+                        service: 0
+                    },
+                    {
+                        id: "art90c1",
+                        article: "art.90 c.1",
+                        title: "Trasporto di sostanze stupefacenti o psicotrope (trasporto PICCOLO)",
+                        fine: 10000,
+                        detention: 10,
+                        service: 0,
+                        note: "20 anni (con sparatoria)"
+                    },
+                    {
+                        id: "art90c2",
+                        article: "art.90 c.2",
+                        title: "Trasporto di sostanze stupefacenti o psicotrope (trasporto GRANDE)",
+                        fine: 15000,
+                        detention: 20,
+                        service: 0,
+                        note: "30 anni (con sparatoria)"
+                    },
+                    {
+                        id: "art90c3",
+                        article: "art.90 c.3",
+                        title: "Trasporto di sostanze stupefacenti LSD",
+                        fine: 15000,
+                        detention: 15,
+                        service: 0,
+                        note: "25 anni (con sparatoria)"
+                    }
+                ]
+            },
+            {
+                category: "REATI CONTRO LA PERSONA",
+                items: [
+                    {
+                        id: "art368cp",
+                        article: "art. 368 c.p.",
+                        title: "Calunnia",
+                        fine: 2890,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art422cp",
+                        article: "art. 422 c.p.",
+                        title: "Strage",
+                        fine: 0,
+                        detention: 99,
+                        service: 0,
+                        note: "Ergastolo/processo"
+                    },
+                    {
+                        id: "art422c2cp",
+                        article: "art. 422 c.2 c.p.",
+                        title: "Tentata strage",
+                        fine: 9840,
+                        detention: 20,
+                        service: 0
+                    },
+                    {
+                        id: "art575cp",
+                        article: "art. 575 c.p.",
+                        title: "Omicidio",
+                        fine: 0,
+                        detention: 99,
+                        service: 0,
+                        note: "Ergastolo/processo"
+                    },
+                    {
+                        id: "art575c2cp",
+                        article: "art. 575 c.2 c.p.",
+                        title: "Tentato omicidio",
+                        fine: 18710,
+                        detention: 15,
+                        service: 0
+                    },
+                    {
+                        id: "art580cp",
+                        article: "art. 580 c.p.",
+                        title: "Istigazione o aiuto al suicidio",
+                        fine: 6450,
+                        detention: 4,
+                        service: 0
+                    },
+                    {
+                        id: "art581cp",
+                        article: "art. 581 c.p.",
+                        title: "Percosse",
+                        fine: 5000,
+                        detention: 1,
+                        service: 0
+                    },
+                    {
+                        id: "art582cp",
+                        article: "art. 582 c.p.",
+                        title: "Lesioni",
+                        fine: 2000,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art588cp",
+                        article: "art. 588 c.p.",
+                        title: "Rissa",
+                        fine: 2000,
+                        detention: 4,
+                        service: 0
+                    },
+                    {
+                        id: "art593cp",
+                        article: "art. 593 c.p.",
+                        title: "Omissione di soccorso",
+                        fine: 6250,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art595cp",
+                        article: "art. 595 c.p.",
+                        title: "Diffamazione",
+                        fine: 5000,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art605cp",
+                        article: "art. 605 c.p.",
+                        title: "Sequestro di persona",
+                        fine: 16945,
+                        detention: 8,
+                        service: 0
+                    },
+                    {
+                        id: "art612cp",
+                        article: "art. 612 c.p.",
+                        title: "Minaccia",
+                        fine: 6850,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art612c2cp",
+                        article: "art. 612 c.2 c.p.",
+                        title: "Minaccia a mano armata",
+                        fine: 11675,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art629cp",
+                        article: "art. 629 c.p.",
+                        title: "Estorsione",
+                        fine: 23540,
+                        detention: 7,
+                        service: 0
+                    },
+                    {
+                        id: "art644cp",
+                        article: "art. 644 c.p.",
+                        title: "Usura",
+                        fine: 22450,
+                        detention: 8,
+                        service: 0
+                    },
+                    {
+                        id: "art659cp",
+                        article: "art. 659 c.p.",
+                        title: "Disturbo delle occupazioni o del riposo delle persone",
+                        fine: 865,
+                        detention: 0.25,
+                        service: 0
+                    }
+                ]
+            },
+            {
+                category: "REATI CONTRO IL PATRIMONIO",
+                items: [
+                    {
+                        id: "art30ln157",
+                        article: "art. 30 l. n. 157/1992",
+                        title: "Furto venatorio",
+                        fine: 6450,
+                        detention: 1.67,
+                        service: 0
+                    },
+                    {
+                        id: "art31ln157",
+                        article: "art. 31 l. n. 157/1992",
+                        title: "Bracconaggio",
+                        fine: 10450,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art311c2",
+                        article: "art. 311 c 2",
+                        title: "Possesso di carne illegale",
+                        fine: 5000,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art527cp",
+                        article: "art 527 c.p.",
+                        title: "Atti osceni",
+                        fine: 20000,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art614cp",
+                        article: "art. 614 c.p.",
+                        title: "Violazione di domicilio",
+                        fine: 4850,
+                        detention: 2,
+                        service: 0
+                    },
+                    {
+                        id: "art624cp",
+                        article: "art. 624 c.p.",
+                        title: "Furto di veicolo generico",
+                        fine: 3000,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art624biscp",
+                        article: "art. 624 bis c.p.",
+                        title: "Furto di veicolo (POLIZIA LOCALE)",
+                        fine: 5000,
+                        detention: 1,
+                        service: 0,
+                        note: "5 anni se consegnato, 7 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c1cp",
+                        article: "art. 628 c.1. c.p.",
+                        title: "Rapina a negozietto",
+                        fine: 5000,
+                        detention: 10,
+                        service: 0,
+                        note: "12 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c2cp",
+                        article: "art. 628 c.2. c.p.",
+                        title: "Rapina a gioielleria piccola",
+                        fine: 10000,
+                        detention: 15,
+                        service: 0,
+                        note: "20 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c3cp",
+                        article: "art. 628 c.3. c.p.",
+                        title: "Rapina a gioielleria grande",
+                        fine: 10000,
+                        detention: 20, 
+                        service: 0,
+                        note: "30 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c4cp",
+                        article: "art. 628 c.4. c.p.",
+                        title: "Rapina a banca fleeca",
+                        fine: 10000,
+                        detention: 20,
+                        service: 0,
+                        note: "30 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c5cp",
+                        article: "art. 628 c.5. c.p.",
+                        title: "Rapina a banca pacific",
+                        fine: 10000,
+                        detention: 30,
+                        service: 0,
+                        note: "40 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c6cp",
+                        article: "art. 628 c.6. c.p.",
+                        title: "Assalto a camion blindato",
+                        fine: 4850,
+                        detention: 12,
+                        service: 0,
+                        note: "20 anni con sparatoria"
+                    },
+                    {
+                        id: "art628c7cp",
+                        article: "art. 628 c.7. c.p.",
+                        title: "Assalto a camion trasporto uranio",
+                        fine: 20000,
+                        detention: 40,
+                        service: 0,
+                        note: "50 anni con sparatoria"
+                    },
+                    {
+                        id: "art633cp",
+                        article: "art. 633 c.p.",
+                        title: "Invasione di terreni o edifici",
+                        fine: 1032,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art648cp",
+                        article: "art. 648 c.p.",
+                        title: "Ricettazione",
+                        fine: 2580,
+                        detention: 4,
+                        service: 0
+                    }
+                ]
+            },
+            {
+                category: "REATI CONTRO LA PUBBLICA AMMINISTRAZIONE",
+                items: [
+                    {
+                        id: "art85TULPS",
+                        article: "art. 85 T.U.L.P.S.",
+                        title: "Comparsa in luoghi aperti al pubblico con volto travisato",
+                        fine: 5000,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art290cp",
+                        article: "art. 290 c.p.",
+                        title: "Vilipendio",
+                        fine: 5000,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art323cp",
+                        article: "art. 323 c.p.",
+                        title: "Abuso d'ufficio",
+                        fine: 5560,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art336cp",
+                        article: "art. 336 c.p.",
+                        title: "Violenza o minaccia a pubblico ufficiale",
+                        fine: 1558,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art337cp",
+                        article: "art. 337 c.p.",
+                        title: "Resistenza a pubblico ufficiale",
+                        fine: 1850,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art340cp",
+                        article: "art. 340 c.p.",
+                        title: "Interruzione di pubblico servizio",
+                        fine: 5850,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art341biscp",
+                        article: "art. 341 bis c.p.",
+                        title: "Oltraggio a pubblico ufficiale",
+                        fine: 3260,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art372cp",
+                        article: "art. 372 c.p.",
+                        title: "Falsa testimonianza",
+                        fine: 3200,
+                        detention: 4,
+                        service: 0
+                    },
+                    {
+                        id: "art377cp",
+                        article: "art. 377 c.p.",
+                        title: "Intralcio alla giustizia",
+                        fine: 5600,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art385cp",
+                        article: "art. 385 c.p.",
+                        title: "Evasione",
+                        fine: 14560,
+                        detention: 6,
+                        service: 0
+                    },
+                    {
+                        id: "art385biscp",
+                        article: "art. 385 bis c.p.",
+                        title: "Latitanza",
+                        fine: 18570,
+                        detention: 6,
+                        service: 0
+                    },
+                    {
+                        id: "art416cp",
+                        article: "art. 416 c.p.",
+                        title: "Associazione a delinquere",
+                        fine: 16780,
+                        detention: 12,
+                        service: 0
+                    },
+                    {
+                        id: "art416biscp",
+                        article: "art. 416 bis c.p.",
+                        title: "Associazione a delinquere di stampo mafioso",
+                        fine: 22340,
+                        detention: 28,
+                        service: 0
+                    },
+                    {
+                        id: "art495cp",
+                        article: "art. 495 c.p.",
+                        title: "Falsa attestazione",
+                        fine: 2245,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art498cp",
+                        article: "art. 498 c.p.",
+                        title: "Usurpazione di titoli ed onori",
+                        fine: 929,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art527cp2",
+                        article: "art. 527 c.p.",
+                        title: "Atti osceni",
+                        fine: 5560,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art650cp",
+                        article: "art. 650 c.p.",
+                        title: "Inosservanza dei provvedimenti dell'Autorità",
+                        fine: 5670,
+                        detention: 4,
+                        service: 0
+                    },
+                    {
+                        id: "art651cp",
+                        article: "art. 651 c.p.",
+                        title: "Rifiuto di indicazioni sulla propria identità personale",
+                        fine: 1955,
+                        detention: 0.33,
+                        service: 0
+                    },
+                    {
+                        id: "art658cp",
+                        article: "art. 658 c.p.",
+                        title: "Procurato allarme presso l'Autorità",
+                        fine: 940,
+                        detention: 0.67,
+                        service: 0
+                    },
+                    {
+                        id: "art682cp",
+                        article: "art. 682 c.p.",
+                        title: "Ingresso arbitrario in luoghi ove l'accesso è vietato nell'interesse militare dello Stato",
+                        fine: 450,
+                        detention: 2,
+                        service: 0
+                    }
+                ]
+            },
+            {
+                category: "REATI RIGUARDANTI L'ECONOMIA E LE FINANZE",
+                items: [
+                    {
+                        id: "art8DLgs74",
+                        article: "art. 8 D. Lgs. n. 74/2000",
+                        title: "Emissione di fatture o altri documenti per operazioni inesistenti",
+                        fine: 0,
+                        detention: 4,
+                        service: 0,
+                        note: "Fine equals total of falsified invoices"
+                    },
+                    {
+                        id: "DLgs58a",
+                        article: "D. Lgs. n. 58/2015",
+                        title: "Evasione di fattura da €10.000,00 a €29.999,00",
+                        fine: 0,
+                        detention: 5,
+                        service: 0,
+                        note: "Fine equals 50% of unpaid invoices"
+                    },
+                    {
+                        id: "DLgs58b",
+                        article: "D. Lgs. n. 58/2015",
+                        title: "Evasione di fattura da €30.000,00 a €69.999,00",
+                        fine: 0,
+                        detention: 15,
+                        service: 0,
+                        note: "Fine equals 50% of unpaid invoices"
+                    },
+                    {
+                        id: "DLgs58c",
+                        article: "D. Lgs. n. 58/2015",
+                        title: "Evasione di fattura da €70.000,00 a €99.999,00",
+                        fine: 0,
+                        detention: 25,
+                        service: 0,
+                        note: "Fine equals 50% of unpaid invoices"
+                    },
+                    {
+                        id: "DLgs58d",
+                        article: "D. Lgs. n. 58/2015",
+                        title: "Evasione di fattura da oltre €100.000,00",
+                        fine: 0,
+                        detention: 50,
+                        service: 0,
+                        note: "Fine equals 50% of unpaid invoices"
+                    },
+                    {
+                        id: "art216cp",
+                        article: "art. 216 c.p.",
+                        title: "Bancarotta fraudolenta",
+                        fine: 112540,
+                        detention: 10,
+                        service: 0
+                    },
+                    {
+                        id: "art640cp",
+                        article: "art. 640 c.p.",
+                        title: "Truffa",
+                        fine: 6580,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art646cp",
+                        article: "art. 646 c.p.",
+                        title: "Appropriazione indebita",
+                        fine: 8750,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art648biscp",
+                        article: "art. 648 bis c.p.",
+                        title: "Riciclaggio",
+                        fine: 12650,
+                        detention: 12,
+                        service: 0
+                    },
+                    {
+                        id: "art708cp",
+                        article: "art. 708 c.p.",
+                        title: "Possesso ingiustificato di valori",
+                        fine: 5850,
+                        detention: 4,
+                        service: 0
+                    }
+                ]
+            },
+            {
+                category: "REATI RIGUARDANTI LE ARMI E MATERIALI ILLEGALI",
+                items: [
+                    {
+                        id: "art435cp",
+                        article: "art. 435 c.p.",
+                        title: "Fabbricazione o detenzione di materie esplodenti",
+                        fine: 4865,
+                        detention: 10,
+                        service: 0
+                    },
+                    {
+                        id: "art697cp",
+                        article: "art. 697 c.p.",
+                        title: "Detenzione abusiva di armi",
+                        fine: 11450,
+                        detention: 12,
+                        service: 0
+                    },
+                    {
+                        id: "art697c2cp",
+                        article: "art. 697 c.2 c.p.",
+                        title: "Detenzione di armi illegali",
+                        fine: 15789,
+                        detention: 15,
+                        service: 0
+                    }
+                ]
+            },
+            {
+                category: "REATI RIGUARDANTI IL VOLO E LA NAVIGAZIONE",
+                items: [
+                    {
+                        id: "art1cn",
+                        article: "art. 1 c.n.",
+                        title: "Conduzione di nave senza patente nautica",
+                        fine: 23450,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art1cn2",
+                        article: "art. 1 c.n.",
+                        title: "Coduzione di mezzo aereo senza brevetto di volo",
+                        fine: 26450,
+                        detention: 0,
+                        service: 0
+                    },
+                    {
+                        id: "art1099cn",
+                        article: "art. 1099 c.n.",
+                        title: "Rifiuto di obbedienza a nave o aereo da guerra",
+                        fine: 5640,
+                        detention: 5,
+                        service: 0
+                    },
+                    {
+                        id: "art1100cn",
+                        article: "art. 1100 c.n.",
+                        title: "Resistenza o violenza contro nave o aereo da guerra",
+                        fine: 11560,
+                        detention: 8,
+                        service: 0
+                    },
+                    {
+                        id: "art1101cn",
+                        article: "art. 1101 c.n.",
+                        title: "Imbarco di armi, munizioni o persone a scopo delittuoso",
+                        fine: 4650,
+                        detention: 3,
+                        service: 0
+                    },
+                    {
+                        id: "art1102cn",
+                        article: "art. 1102 c.n.",
+                        title: "Navigazione in zone vietate",
+                        fine: 8750,
+                        detention: 5,
+                        service: 0
+                    }
+                ]
+            }
+        ];
+
+        // Function to format currency
+        function formatCurrency(amount) {
+            return '€ ' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        // Function to create violation elements
+        function createViolationElements() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            violations.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.dataset.category = category.category;
+                
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category.category;
+                categoryTitle.addEventListener('click', () => {
+                    categoryDiv.classList.toggle('open');
+                });
+                
+                const categoryContent = document.createElement('div');
+                categoryContent.className = 'category-content';
+                
+                category.items.forEach(violation => {
+                    const violationDiv = document.createElement('div');
+                    violationDiv.className = 'violation';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = violation.id;
+                    checkbox.addEventListener('change', updateTotals);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = violation.id;
+                    label.textContent = violation.title + ' (' + violation.article + ')';
+                    
+                    const violationInfo = document.createElement('div');
+                    violationInfo.className = 'violation-info';
+                    
+                    if (violation.fine > 0) {
+                        const fine = document.createElement('span');
+                        fine.className = 'fine';
+                        fine.textContent = formatCurrency(violation.fine);
+                        violationInfo.appendChild(fine);
+                    }
+                    
+                    if (violation.detention > 0) {
+                        const detention = document.createElement('span');
+                        detention.className = 'detention';
+                        detention.textContent = violation.detention + (violation.detention === 1 ? ' anno' : ' anni');
+                        violationInfo.appendChild(detention);
+                    }
+                    
+                    if (violation.note) {
+                        const note = document.createElement('span');
+                        note.className = 'note';
+                        note.textContent = 'Nota: ' + violation.note;
+                        note.style.fontSize = '12px';
+                        note.style.color = '#666';
+                        violationInfo.appendChild(note);
+                    }
+                    
+                    violationDiv.appendChild(checkbox);
+                    violationDiv.appendChild(label);
+                    violationDiv.appendChild(violationInfo);
+                    categoryContent.appendChild(violationDiv);
+                });
+                
+                categoryDiv.appendChild(categoryTitle);
+                categoryDiv.appendChild(categoryContent);
+                container.appendChild(categoryDiv);
+            });
+        }
+        
+        // Function to update totals when checkboxes are changed
+        function updateTotals() {
+            let totalFine = 0;
+            let totalDetention = 0;
+            let totalService = 0;
+            
+            // Check all checkboxes
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                // Find the violation data
+                for (const category of violations) {
+                    const violation = category.items.find(item => item.id === checkbox.id);
+                    if (violation) {
+                        totalFine += violation.fine;
+                        totalDetention += violation.detention;
+                        totalService += violation.service;
+                        break;
+                    }
+                }
+            });
+            
+            // Update the displayed totals
+            document.getElementById('totalFine').textContent = formatCurrency(totalFine);
+            document.getElementById('totalDetention').textContent = totalDetention.toFixed(2) + (totalDetention === 1 ? ' anno' : ' anni');
+            document.getElementById('totalService').textContent = totalService;
+        }
+        
+        // Function to filter violations by search term
+        function filterViolations() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            let foundAny = false;
+            
+            // Loop through all violations and hide/show based on search
+            document.querySelectorAll('.category').forEach(category => {
+                let foundInCategory = false;
+                
+                // Check if the category title matches
+                const categoryTitle = category.querySelector('.category-title').textContent.toLowerCase();
+                if (categoryTitle.includes(searchTerm)) {
+                    foundInCategory = true;
+                    foundAny = true;
+                }
+                
+                // Check each violation in the category
+                category.querySelectorAll('.violation').forEach(violation => {
+                    const violationText = violation.querySelector('label').textContent.toLowerCase();
+                    if (violationText.includes(searchTerm)) {
+                        violation.style.display = 'flex';
+                        foundInCategory = true;
+                        foundAny = true;
+                    } else {
+                        violation.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide the entire category
+                if (foundInCategory) {
+                    category.style.display = 'block';
+                    category.classList.add('open'); // Expand the category
+                } else {
+                    category.style.display = 'none';
+                }
+            });
+            
+            // Show "no results" message if nothing found
+            if (!foundAny && searchTerm) {
+                // Remove any existing no-results message
+                const existingNoResults = document.querySelector('.no-results');
+                if (existingNoResults) {
+                    existingNoResults.remove();
+                }
+                
+                // Create and append the no-results message
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = 'Nessun risultato trovato per "' + searchTerm + '"';
+                document.getElementById('categoriesContainer').appendChild(noResults);
+            } else {
+                // Remove any existing no-results message
+                const existingNoResults = document.querySelector('.no-results');
+                if (existingNoResults) {
+                    existingNoResults.remove();
+                }
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            createViolationElements();
+            
+            // Add event listener for search box
+            document.getElementById('searchBox').addEventListener('input', filterViolations);
+        });
+    </script>
+</body>
+</html>
